@@ -21,7 +21,12 @@ const Tab = createBottomTabNavigator();
 
 function TabStack() {
   return (
-    <Tab.Navigator>
+    <Tab.Navigator
+      tabBarOptions={{
+        activeTintColor: "blue",
+        inactiveTintColor: "gray",
+      }}
+    >
       <Tab.Screen name="Balance" component={Balance} />
       <Tab.Screen name="Transactions" component={Transactions} />
       <Tab.Screen name="Stats" component={Stats} />
@@ -29,37 +34,39 @@ function TabStack() {
     </Tab.Navigator>
   );
 }
-function App() {
-  return (
-    <NavigationContainer>
-      <MainStack.Navigator>
-        <MainStack.Screen
-          name="Home"
-          component={Home}
-          options={({ navigation }) => ({
-            headerTitle: "Your Accounts",
-            headerRight: () => (
-              <Button
-                style={styles.addBttn}
-                onPress={() => navigation.navigate("Plaid")}
-                title="Add Account"
-                color="blue"
-              />
-            ),
-          })}
-        />
-        <MainStack.Screen name="TabStack" children={TabStack} />
-        <MainStack.Screen name="Plaid" component={Plaid} />
-      </MainStack.Navigator>
-    </NavigationContainer>
-    // <View style={styles.container}>
-    //   <Text>Hello World</Text>
-    //   <Button
-    //     onPress={() => alert("clicked!")}
-    //     title="android button"
-    //   ></Button>
-    // </View>
-  );
+class App extends React.Component {
+  render() {
+    return (
+      <NavigationContainer>
+        <MainStack.Navigator>
+          <MainStack.Screen
+            name="Home"
+            component={Home}
+            options={({ navigation }) => ({
+              headerTitle: "Your Accounts",
+              headerRight: () => (
+                <Button
+                  style={styles.addBttn}
+                  onPress={() => navigation.navigate("Plaid")}
+                  title="Add Account"
+                  color="blue"
+                />
+              ),
+            })}
+          />
+          <MainStack.Screen name="TabStack" children={TabStack} />
+          <MainStack.Screen name="Plaid" component={Plaid} />
+        </MainStack.Navigator>
+      </NavigationContainer>
+      // <View style={styles.container}>
+      //   <Text>Hello World</Text>
+      //   <Button
+      //     onPress={() => alert("clicked!")}
+      //     title="android button"
+      //   ></Button>
+      // </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
