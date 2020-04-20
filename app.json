@@ -1,0 +1,17 @@
+{
+  "name": "WeatherMe",
+  "displayName": "WeatherMe",
+  "expo": {
+    "name": "WeatherMe",
+    "slug": "WeatherMe",
+    "version": "1.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
