@@ -22,7 +22,7 @@ export default Home = (props) => (
   <View style={styles.container}>
     <Text>Hello World</Text>
     <Button
-      onPress={() => props.navigation.navigate("TabStack")}
+      onPress={() => props.navigation.navigate("My Account")}
       title="android button"
     ></Button>
   </View>

@@ -54,7 +54,7 @@ class App extends React.Component {
               ),
             })}
           />
-          <MainStack.Screen name="TabStack" children={TabStack} />
+          <MainStack.Screen name="My Account" children={TabStack} />
           <MainStack.Screen name="Plaid" component={Plaid} />
         </MainStack.Navigator>
       </NavigationContainer>
