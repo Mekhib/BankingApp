@@ -1,5 +1,7 @@
 import React, { Component } from "react";
-import { Platform, StyleSheet, Text, View, Button } from "react-native";
+import { Platform, StyleSheet, Text, View, Button, Image } from "react-native";
+import { grabLocationData } from "./hookComponent";
+import { ScrollView } from "react-native-gesture-handler";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -17,13 +19,26 @@ const styles = StyleSheet.create({
     color: "#333333",
     marginBottom: 5,
   },
+  bankDiv: {
+    flexDirection: "row",
+    alignContent: "space-between",
+  },
+  locationImage: {
+    width: 90,
+    height: 80,
+    borderRadius: 15,
+    marginRight: 12,
+  },
 });
-export default Locations = (props) => (
-  <View style={styles.container}>
-    <Text>Location</Text>
-    <Button
-      onPress={() => props.navigation.navigate("Home")}
-      title="Location button"
-    ></Button>
-  </View>
-);
+export default Locations = (props) => {
+  const apiKey = "AIzaSyD3o3hDRwSZTVhlUIDOjGQ1ZqevG6fnWII";
+  const data = grabLocationData();
+  console.log(data);
+  return (
+    <ScrollView>
+      {data.results.map((bank) => {
+        return <View>{bank.name}</View>;
+      })}
+    </ScrollView>
+  );
+};
