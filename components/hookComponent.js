@@ -28,6 +28,8 @@ export function grabLocationData() {
       },
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
     );
+    const query = "wells+fargo";
+    const apiKey = "AIzaSyD3o3hDRwSZTVhlUIDOjGQ1ZqevG6fnWII";
     const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${query}&location=${location}&radius=10000&key=${apiKey}`;
     console.log("console log!!!", url);
     fetch(url)
