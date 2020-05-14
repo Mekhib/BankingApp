@@ -185,6 +185,7 @@ dependencies {
     implementation project(':react-native-plaid-link-sdk')
     implementation 'com.plaid.link:sdk-core:2019-05-29'
     implementation fileTree(dir: "libs", include: ["*.jar"])
+    compile ("com.facebook.react:react-native:0.50.3") { force = true }
     implementation "com.facebook.react:react-native:+"  // From node_modules
     addUnimodulesDependencies()
 

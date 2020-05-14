@@ -29,23 +29,64 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   bankDiv: {
-    flexDirection: "row",
+    marginRight: 11,
+    marginLeft: 11,
+    borderRadius: 6,
+    marginTop: 5,
+    marginBottom: 10,
+    padding: 10,
     alignContent: "space-between",
     backgroundColor: "white",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 3,
+      height: 2,
     },
-    shadowOpacity: 0.27,
-    shadowRadius: 3.65,
-    elevation: 6,
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 2,
+  },
+  bankName: {
+    fontSize: 17,
+    fontWeight: "300",
+    width: 350,
+    // alignSelf: "center",
+    flexDirection: "row",
   },
   locationImage: {
-    width: 90,
-    height: 80,
+    width: 50,
+    height: 60,
     borderRadius: 15,
-    marginRight: 12,
+    paddingRight: 30,
+    flexDirection: "row",
+    marginLeft: 12,
+  },
+  bankTitle: {
+    // flexDirection: "row",
+    width: 100,
+  },
+  formattedAddress: {
+    width: 250,
+    fontSize: 10,
+  },
+  button: {
+    width: 100,
+    alignSelf: "flex-end",
+    flexDirection: "row",
+  },
+  bankDiv2: {
+    flexDirection: "row",
+    alignSelf: "center",
+  },
+  title: {
+    alignSelf: "center",
+    flexDirection: "row",
+    fontSize: 20,
+    padding: 10,
+  },
+  backgroundDiv: {
+    backgroundColor: "white",
+    borderRadius: 10,
   },
 });
 
@@ -94,29 +135,41 @@ export default function Locations() {
       .then((responseJSON) => {
         updateData(responseJSON);
         isLoaded(true);
-        console.log("data", this.state.data.results);
+        console.log("data", data.results);
       });
   }, []);
   if (loaded) {
     return (
-      <ScrollView>
+      <ScrollView style={styles.backgroundDiv}>
+        <Text style={styles.title}>Locations</Text>
         {data.results.map((bank) => {
+          console.log(bank);
           var { lat, lng } = bank.geometry.location;
+          var isOpen = bank.opening_hours || "Closing at 5";
+          console.log(photoRef);
           return (
             <View style={styles.bankDiv}>
-              <Text>Locations</Text>
-              <Image
-                source={{
-                  uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${bank.photos[0].photo_reference}&key=${apiKey}`,
-                }}
-              />
-              <Text>{bank.name}</Text>
-              <Text>{bank.formatted_address}</Text>
-              <Text>CLOSED</Text>
-              <Button
-                title="Go"
-                onPress={() => this.openMaps(`${lat},${lng}`)}
-              />
+              <View style={styles.bankDiv2}>
+                <Image
+                  style={styles.locationImage}
+                  source={{
+                    uri: `${bank.icon}`,
+                  }}
+                />
+                <View>
+                  <Text style={styles.bankName}>
+                    {bank.permanently_closed
+                      ? `${bank.name} - PERMANENTLY CLOSED`
+                      : `${bank.name}`}
+                  </Text>
+                  <Text style={styles.formattedAddress}>
+                    {bank.formatted_address}
+                  </Text>
+                  <Text style={styles.isOpen}>
+                    {isOpen === true ? "Now Open" : "CLOSED"}
+                  </Text>
+                </View>
+              </View>
             </View>
           );
         })}
