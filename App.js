@@ -35,6 +35,13 @@ function TabStack() {
   );
 }
 class App extends React.Component {
+  state = {
+    data: [],
+  };
+  updateData = (data) => {
+    this.setState({ data });
+    console.log("APP STATE", this.state.data);
+  };
   render() {
     return (
       <NavigationContainer>
@@ -55,7 +62,9 @@ class App extends React.Component {
             })}
           />
           <MainStack.Screen name="My Account" children={TabStack} />
-          <MainStack.Screen name="Plaid" component={Plaid} />
+          <MainStack.Screen name="Plaid">
+            {(props) => <Plaid {...props} updateData={this.updateData} />}
+          </MainStack.Screen>
         </MainStack.Navigator>
       </NavigationContainer>
       // <View style={styles.container}>

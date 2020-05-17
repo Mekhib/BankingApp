@@ -146,7 +146,7 @@ export default function Locations() {
           console.log(bank);
           var { lat, lng } = bank.geometry.location;
           var isOpen = bank.opening_hours || "Closing at 5";
-          console.log(photoRef);
+          // console.log(photoRef);
           return (
             <View style={styles.bankDiv}>
               <View style={styles.bankDiv2}>

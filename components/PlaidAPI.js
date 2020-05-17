@@ -2,31 +2,43 @@
 import * as React from "react";
 import PlaidAuthenticator from "react-native-plaid-link";
 import PlaidClient from "expo-plaid-link";
-import { Platform, StyleSheet, Text, View, Button } from "react-native";
-
+import { Platform, StyleSheet, Text, View, Button, Image } from "react-native";
+const style = StyleSheet.create({
+  bankImage: {
+    width: 150,
+    height: 130,
+    alignSelf: "center",
+  },
+  connectedText: {
+    fontWeight: "200",
+    alignSelf: "center",
+    marginTop: 14,
+  },
+});
 class Plaid extends React.Component {
   state = {
     data: [],
-    complete: false,
+    completeCheck1: false,
+    success: true,
   };
 
-  onMessage = () => {
-    // this.setState({ data });
-    this.setState({ complete: true });
-    alert("onMessage!");
-    // if (complete) console.log(this.state.data);
-    return (
-      <View>
-        <Text>data!{data}</Text>
-      </View>
-    );
+  onMessage = (obj) => {
+    console.log("Finally", obj);
+    this.setState({ data: obj, completeCheck1: true });
+    if (this.state.completeCheck1) {
+      var propertyCheck = obj.metadata.hasOwnProperty("public_token");
+      this.props.updateData(obj);
+      console.log("prop check", propertyCheck);
+      if (propertyCheck) this.onConnected();
+    }
   };
-  onConnected = (data) => {
+
+  onConnected = () => {
     alert("Onconnected!");
-    // console.log("connected!", data);
+    this.setState({ success: true });
   };
   render() {
-    return (
+    return this.state.success === false ? (
       <View style={{ flex: 1 }}>
         <Text>Plaid Client</Text>
         <PlaidClient
@@ -41,6 +53,17 @@ class Plaid extends React.Component {
           onMessage={this.onMessage}
           onConnected={this.onConnected}
         />
+      </View>
+    ) : (
+      <View style={{ flex: 1, justifyContent: "center" }}>
+        <Image
+          source={{
+            uri:
+              "https://www.waterfordbankna.com/media/2019/10/mortgageCenter.png",
+          }}
+          style={style.bankImage}
+        />
+        <Text style={style.connectedText}>Successfully Connected!</Text>
       </View>
     );
     // return (
