@@ -1,4 +1,8 @@
 import React, { Component } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import plaid from "plaid";
+import moment from "moment";
+import { BarIndicator } from "react-native-indicators";
 import {
   Platform,
   StyleSheet,
@@ -8,7 +12,9 @@ import {
   ScrollView,
   Image,
   ImageBackground,
+  FlatList,
 } from "react-native";
+import transactions from "./transactions";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -48,7 +54,7 @@ const styles = StyleSheet.create({
     fontWeight: "300",
     alignSelf: "flex-start",
     fontSize: 10,
-    marginLeft: 31,
+    marginLeft: 7,
     justifyContent: "flex-start",
     position: "relative",
     top: 46,
@@ -61,7 +67,7 @@ const styles = StyleSheet.create({
   balanceText: {
     fontWeight: "300",
     fontSize: 15,
-    marginLeft: 75,
+    // marginLeft: 75,
     padding: 1,
   },
   money: {
@@ -129,6 +135,47 @@ const styles = StyleSheet.create({
   phoneNumberText: {
     fontSize: 20,
   },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderColor: "#DCDCDC",
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    padding: 10,
+  },
+  pic: {
+    borderRadius: 30,
+    width: 60,
+    height: 60,
+  },
+  nameContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: 280,
+  },
+  nameTxt: {
+    marginLeft: 15,
+    fontWeight: "600",
+    color: "#222",
+    fontSize: 18,
+    width: 170,
+  },
+  mblTxt: {
+    fontWeight: "400",
+    color: "green",
+    fontSize: 25,
+    alignSelf: "flex-end",
+  },
+  msgContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  msgTxt: {
+    fontWeight: "400",
+    color: "#008B8B",
+    fontSize: 12,
+    marginLeft: 15,
+  },
 });
 const image = {
   uri:
@@ -138,39 +185,126 @@ const logoImage = {
   uri:
     "https://yt3.ggpht.com/-ftL7wcuvwB0/AAAAAAAAAAI/AAAAAAAAAAA/IFOzfBDM8JI/s900-c-k-no-mo-rj-c0xffffff/photo.jpg",
 };
-export default Balance = (props) => (
-  <ScrollView style={styles.container}>
-    <View style={styles.balanceContainer}>
-      <ImageBackground style={styles.image} source={image}>
-        <View style={styles.balance}>
-          <Image source={logoImage} style={styles.logoImage} />
-          <Text style={styles.balanceText}>Available Funds:</Text>
-          <Text style={styles.money}>$369.98</Text>
-          <Text style={styles.accountType}>Primary Check acct.</Text>
-          <Text style={styles.rightBalanceText}>Spent Yesterday:</Text>
-          <Text style={[styles.money2]}>$38.94</Text>
-          <Text style={styles.leftBalanceText}>Balance Yesterday:</Text>
-          <Text style={[styles.money3]}>$345.98</Text>
+export default Balance = ({ navigation, route }) => {
+  renderItem = ({ item }) => {
+    return (
+      <View style={styles.row}>
+        <Image
+          source={{
+            uri:
+              "https://www.iconbunny.com/icons/media/catalog/product/cache/2/thumbnail/600x/1b89f2fc96fc819c2a7e15c7e545e8a9/1/0/1089.12-credit-card-icon-iconbunny.jpg",
+          }}
+          style={styles.pic}
+        />
+        <View>
+          <View style={styles.nameContainer}>
+            <Text style={styles.nameTxt} numberOfLines={1} ellipsizeMode="tail">
+              {item.name}
+            </Text>
+            <Text style={styles.mblTxt}>${item.amount}</Text>
+          </View>
+          <View style={styles.msgContainer}>
+            <Text style={styles.msgTxt}>{item.date || "N/A"}</Text>
+            <Text style={styles.msgTxt}>
+              {item.location.address || "No address Avalible"}
+            </Text>
+          </View>
         </View>
-      </ImageBackground>
-    </View>
-    <View style={styles.routingNumber}>
-      <Text style={styles.routingTitle}>Routing Number:</Text>
-      <Text style={styles.routingDigits}>098123578905543</Text>
-    </View>
-    <View style={styles.accountNumber}>
-      <Text style={styles.accountTitle}>Account Number:</Text>
-      <Text style={styles.accountDigits}>13468765329980</Text>
-    </View>
-    <View style={styles.phoneNumber}>
-      <Text style={styles.phoneNumberText}>Call : 1800997653</Text>
-    </View>
-    {/* <View>
-      <Text>Account Number:</Text>
-      <Text>13468765329980</Text>
-    </View>
-    // <View>
-    //   <Text>Call : 1800997653</Text>
-    // </View> */}
-  </ScrollView>
-);
+      </View>
+    );
+  };
+  const [data, updateData] = React.useState({});
+  React.useEffect(() => {
+    var bank = route.params.data();
+    var { accessToken, publictoken } = bank;
+    const now = moment();
+    const today = now.format("YYYY-MM-DD");
+    const thirtyDaysAgo = now.subtract(30, "days").format("YYYY-MM-DD");
+    var PlaidClient = new plaid.Client(
+      "5e98c6961489d00012eddd8e",
+      "33c3be97ea231084420ab96b4c45d3",
+      publictoken,
+      plaid.environments.sandbox,
+      { version: "2019-05-29" }
+    );
+    PlaidClient.getBalance(accessToken, (err, res) => {
+      if (err) {
+        console.log("Error", err);
+      }
+      console.log("Balance", res);
+      updateData({ balanceData: res });
+    });
+    GrabTransaction = () => {
+      PlaidClient.getAllTransactions(
+        accessToken,
+        thirtyDaysAgo,
+        today,
+        (err, res2) => {
+          if (err) {
+            console.log("Error", err);
+          }
+          console.log("Transactions", res2);
+          updateData({ ...data, transactionData: res2 });
+          console.log("data!", data.transactionData);
+        }
+      );
+    };
+    setTimeout(GrabTransaction, 4000);
+  }, []);
+  console.log("EXTERNAL ROUTE", route.params);
+  if (
+    Object.keys(data).length &&
+    data.transactionData != null &&
+    Object.keys(data.transactionData).length
+  ) {
+    const handleFilter = (transaction) => {
+      if (
+        transaction.category[0] === "deposit" &&
+        transaction.category[1] === "deposit"
+      ) {
+        return true;
+      }
+    };
+    const filteredData = data.transactionData.transactions.filter(handleFilter);
+    console.log("filter", filteredData);
+    console.log("App state", data);
+    const { available, current } = data.transactionData.accounts[0].balances;
+    const { name, mask, subtype } = data.transactionData.accounts[0];
+    const lastTransaction = data.transactionData.transactions[0].amount;
+    return (
+      <ScrollView style={styles.container}>
+        <View style={styles.balanceContainer}>
+          <ImageBackground style={styles.image} source={image}>
+            <View style={styles.balance}>
+              <Image source={logoImage} style={styles.logoImage} />
+              <Text style={styles.balanceText}>Available Funds:</Text>
+              <Text style={styles.money}>${available}</Text>
+              <Text style={styles.accountType}>{`${name} account`}</Text>
+              <Text style={styles.rightBalanceText}>Current Balance:</Text>
+              <Text style={[styles.money2]}>${current}</Text>
+              <Text style={styles.leftBalanceText}>Last Transaction cost:</Text>
+              <Text style={[styles.money3]}>${lastTransaction}</Text>
+            </View>
+          </ImageBackground>
+        </View>
+        <View style={styles.routingNumber}>
+          <Text style={styles.routingTitle}>Account Number:</Text>
+          <Text style={styles.routingDigits}>xxxx-xxxx-{mask}</Text>
+        </View>
+        <View style={styles.accountNumber}>
+          <Text style={styles.accountTitle}>Routing Number:</Text>
+          <Text style={styles.accountDigits}>031000503</Text>
+        </View>
+        <View style={styles.phoneNumber}>
+          <Text style={styles.phoneNumberText}>Call : 1 (800) 869-3557</Text>
+        </View>
+        <FlatList
+          data={data.transactionData.transactions}
+          renderItem={renderItem}
+        />
+      </ScrollView>
+    );
+  } else {
+    return <BarIndicator color="blue" count={5}></BarIndicator>;
+  }
+};

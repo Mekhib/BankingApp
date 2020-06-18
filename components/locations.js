@@ -1,5 +1,7 @@
 import React, { Component, useState, useEffect } from "react";
 import { Linking } from "expo";
+import { BarIndicator } from "react-native-indicators";
+import { useFocusEffect } from "@react-navigation/native";
 import {
   Platform,
   StyleSheet,
@@ -176,10 +178,6 @@ export default function Locations() {
       </ScrollView>
     );
   } else {
-    return (
-      <View>
-        <Text>Loading locations</Text>
-      </View>
-    );
+    return <BarIndicator color="red" count={3}></BarIndicator>;
   }
 }

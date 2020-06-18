@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Platform, StyleSheet, Text, View, Button } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -22,7 +23,13 @@ export default Transactions = (props) => (
   <View style={styles.container}>
     <Text>Transactions</Text>
     <Button
-      onPress={() => props.navigation.navigate("Home")}
+      onPress={() =>
+        props.navigation.navigate("Home", {
+          params: {
+            hello: "world",
+          },
+        })
+      }
       title="android button"
     ></Button>
   </View>

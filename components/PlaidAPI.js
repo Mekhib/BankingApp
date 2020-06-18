@@ -2,7 +2,16 @@
 import * as React from "react";
 import PlaidAuthenticator from "react-native-plaid-link";
 import PlaidClient from "expo-plaid-link";
-import { Platform, StyleSheet, Text, View, Button, Image } from "react-native";
+import plaid from "plaid";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+  Button,
+  Image,
+  AsyncStorage,
+} from "react-native";
 const style = StyleSheet.create({
   bankImage: {
     width: 150,
@@ -15,68 +24,80 @@ const style = StyleSheet.create({
     marginTop: 14,
   },
 });
-class Plaid extends React.Component {
-  state = {
-    data: [],
-    completeCheck1: false,
-    success: true,
-  };
 
+function Plaid({ navigation, route }) {
+  const [success, updateSuccess] = React.useState(false);
+  grabAccessToken = (publictoken, data) => {
+    const plaidClient = new plaid.Client(
+      "5e98c6961489d00012eddd8e",
+      "33c3be97ea231084420ab96b4c45d3",
+      publictoken,
+      plaid.environments.sandbox,
+      { version: "2019-05-29" }
+    );
+    plaidClient.exchangePublicToken(publictoken, function (err, apiResponse) {
+      if (err) throw err;
+      var accessToken = apiResponse.access_token;
+      console.log(accessToken);
+      var itemId = apiResponse.item_id;
+      var obj = {
+        ...data,
+        accessToken,
+        publictoken,
+      };
+      route.params.updateData(obj);
+      this.onConnected();
+    });
+  };
   onMessage = (obj) => {
     console.log("Finally", obj);
-    this.setState({ data: obj, completeCheck1: true });
-    if (this.state.completeCheck1) {
-      var propertyCheck = obj.metadata.hasOwnProperty("public_token");
-      this.props.updateData(obj);
-      console.log("prop check", propertyCheck);
-      if (propertyCheck) this.onConnected();
+    if (obj.metadata && obj.metadata.public_token) {
+      var data = {
+        bank: obj.metadata.institution.name,
+        account: obj.metadata.account.name,
+        accountType: obj.metadata.account.subtype,
+      };
+      this.grabAccessToken(obj.metadata.public_token, data);
     }
   };
 
   onConnected = () => {
-    alert("Onconnected!");
-    this.setState({ success: true });
+    updateSuccess(true);
+    console.log("connectedState", success);
   };
-  render() {
-    return this.state.success === false ? (
-      <View style={{ flex: 1 }}>
-        <Text>Plaid Client</Text>
-        <PlaidClient
-          selectAccount="false"
-          env="sandbox"
-          PublicKey="0671672a09fd2b910e3dbdf668c079"
-          origin="localhost"
-          product="auth"
-          clientName="Beautiful Banking"
-          webhook="https://requestb.in"
-          PlaidLinkUri="https://cdn.plaid.com/link/v2/stable/link.html"
-          onMessage={this.onMessage}
-          onConnected={this.onConnected}
-        />
-      </View>
-    ) : (
-      <View style={{ flex: 1, justifyContent: "center" }}>
-        <Image
-          source={{
-            uri:
-              "https://www.waterfordbankna.com/media/2019/10/mortgageCenter.png",
-          }}
-          style={style.bankImage}
-        />
-        <Text style={style.connectedText}>Successfully Connected!</Text>
-      </View>
-    );
-    // return (
-    //   <PlaidAuthenticator
-    //     onMessage={this.onMessage}
-    //     publicKey="0671672a09fd2b910e3dbdf668c079"
-    //     env="development"
-    //     product="transactions"
-    //     clientName="Beautiful Banking"
-    //     selectAccount={false}
-    //   />
-    // );
-  }
+  return success === false ? (
+    <View style={{ flex: 1 }}>
+      <PlaidClient
+        selectAccount="false"
+        env="sandbox"
+        PublicKey="0671672a09fd2b910e3dbdf668c079"
+        origin="localhost"
+        product="auth"
+        clientName="Beautiful Banking"
+        webhook="https://requestb.in"
+        PlaidLinkUri="https://cdn.plaid.com/link/v2/stable/link.html"
+        onMessage={this.onMessage}
+        onConnected={this.onConnected}
+      />
+    </View>
+  ) : (
+    <View style={{ flex: 1, justifyContent: "center" }}>
+      <Image
+        source={{
+          uri:
+            "https://www.waterfordbankna.com/media/2019/10/mortgageCenter.png",
+        }}
+        style={style.bankImage}
+      />
+      <Text style={style.connectedText}>Successfully Connected!</Text>
+      <Button
+        onPress={() => {
+          navigation.navigate("Home");
+        }}
+        title="Go Home"
+      />
+    </View>
+  );
 }
 
 export default Plaid;

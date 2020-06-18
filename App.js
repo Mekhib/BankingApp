@@ -10,58 +10,98 @@ import Stats from "./components/stats";
 import Locations from "./components/locations";
 import Home from "./components/home";
 import Plaid from "./components/PlaidAPI";
+import { obj, updateObj } from "./components/updVar";
 
-// const instructions = Platform.select({
-//   ios: `Press Cmd+R to reload,\nCmd+D or shake for dev menu`,
-//   android: `Double tap R on your keyboard to reload,\nShake or press menu button for dev menu`,
-// });
 //Defining Navigators
 const MainStack = createStackNavigator();
 const Tab = createBottomTabNavigator();
-
-function TabStack() {
-  return (
-    <Tab.Navigator
-      tabBarOptions={{
-        activeTintColor: "blue",
-        inactiveTintColor: "gray",
-      }}
-    >
-      <Tab.Screen name="Balance" component={Balance} />
-      <Tab.Screen name="Transactions" component={Transactions} />
-      <Tab.Screen name="Stats" component={Stats} />
-      <Tab.Screen name="Locations" component={Locations} />
-    </Tab.Navigator>
-  );
-}
 class App extends React.Component {
   state = {
-    data: [],
+    data: [
+      {
+        accessToken: "access-sandbox-d83744df-48fe-4559-958f-ddf4a4727000",
+        account: null,
+        bank: "Wells Fargo",
+        publictoken: "public-sandbox-ac40216d-1cd1-451b-a7d3-c7c1b97b0ab6",
+      },
+    ],
+    complete: false,
+    bankSelection: [],
+  };
+  TabStack = () => {
+    return (
+      <Tab.Navigator
+        tabBarOptions={{
+          activeTintColor: "blue",
+          inactiveTintColor: "gray",
+        }}
+      >
+        <Tab.Screen
+          name="Balance"
+          component={Balance}
+          initialParams={{ data: this.fetchBankinfo }}
+        />
+        <Tab.Screen name="Transactions" component={Transactions} />
+        <Tab.Screen name="Stats" component={Stats} />
+        <Tab.Screen name="Locations" component={Locations} />
+      </Tab.Navigator>
+    );
+  };
+  fetchBankinfo = () => {
+    if (this.state.bankSelection.length != 0) {
+      return this.state.bankSelection;
+    } else {
+      return "404";
+    }
   };
   updateData = (data) => {
-    this.setState({ data });
+    this.setState({ data: [...this.state.data, data], complete: true });
     console.log("APP STATE", this.state.data);
+    if (this.state.data != []) {
+      console.log("IF IS TRUE");
+      return true;
+    } else {
+      return false;
+    }
+  };
+  storeIndex = (index) => {
+    var indexResult = this.state.data[index];
+    this.setState({ bankSelection: indexResult });
+    return true;
+  };
+  retriveBanks = () => {
+    return this.state.data;
   };
   render() {
     return (
       <NavigationContainer>
         <MainStack.Navigator>
           <MainStack.Screen
+            initialParams={{
+              data: {
+                retriveBanks: this.retriveBanks,
+                storeIndex: this.storeIndex,
+              },
+            }}
             name="Home"
             component={Home}
             options={({ navigation }) => ({
-              headerTitle: "Your Accounts",
+              headerTitle: "Home",
               headerRight: () => (
                 <Button
                   style={styles.addBttn}
-                  onPress={() => navigation.navigate("Plaid")}
+                  onPress={() =>
+                    navigation.navigate("Plaid", {
+                      updateData: this.updateData,
+                    })
+                  }
                   title="Add Account"
                   color="blue"
                 />
               ),
             })}
           />
-          <MainStack.Screen name="My Account" children={TabStack} />
+          <MainStack.Screen name="My Account" children={this.TabStack} />
           <MainStack.Screen name="Plaid">
             {(props) => <Plaid {...props} updateData={this.updateData} />}
           </MainStack.Screen>

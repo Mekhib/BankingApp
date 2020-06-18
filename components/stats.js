@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Platform, StyleSheet, Text, View, Button } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
