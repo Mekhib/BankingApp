@@ -10,6 +10,7 @@ import Stats from "./components/stats";
 import Locations from "./components/locations";
 import Home from "./components/home";
 import Plaid from "./components/PlaidAPI";
+import Icon from "react-native-vector-icons/FontAwesome5";
 import { obj, updateObj } from "./components/updVar";
 
 //Defining Navigators
@@ -40,10 +41,41 @@ class App extends React.Component {
           name="Balance"
           component={Balance}
           initialParams={{ data: this.fetchBankinfo }}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <Icon name="wallet" color="black" size={30} />
+            ),
+          }}
         />
-        <Tab.Screen name="Transactions" component={Transactions} />
-        <Tab.Screen name="Stats" component={Stats} />
-        <Tab.Screen name="Locations" component={Locations} />
+        <Tab.Screen
+          name="Transactions"
+          component={Transactions}
+          initialParams={{ data: this.fetchBankinfo }}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <Icon name="university" color="black" size={30} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Stats"
+          component={Stats}
+          initialParams={{ data: this.fetchBankinfo }}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <Icon name="chart-bar" color="black" size={30} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Locations"
+          component={Locations}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <Icon name="compass" color="black" size={30} />
+            ),
+          }}
+        />
       </Tab.Navigator>
     );
   };

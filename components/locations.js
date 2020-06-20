@@ -2,6 +2,8 @@ import React, { Component, useState, useEffect } from "react";
 import { Linking } from "expo";
 import { BarIndicator } from "react-native-indicators";
 import { useFocusEffect } from "@react-navigation/native";
+import moment from "moment";
+import Icon from "react-native-vector-icons/FontAwesome5";
 import {
   Platform,
   StyleSheet,
@@ -10,6 +12,7 @@ import {
   Button,
   Image,
   TouchableOpacity,
+  ImageBackground,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import axios from "axios";
@@ -56,12 +59,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   locationImage: {
-    width: 50,
+    width: 70,
     height: 60,
     borderRadius: 15,
-    paddingRight: 30,
     flexDirection: "row",
-    marginLeft: 12,
+    marginLeft: 39,
   },
   bankTitle: {
     // flexDirection: "row",
@@ -82,9 +84,11 @@ const styles = StyleSheet.create({
   },
   title: {
     alignSelf: "center",
+    alignItems: "center",
     flexDirection: "row",
     fontSize: 20,
-    padding: 10,
+    // padding: 10,
+    marginLeft: 10,
   },
   backgroundDiv: {
     backgroundColor: "white",
@@ -141,11 +145,33 @@ export default function Locations() {
       });
   }, []);
   if (loaded) {
+    var photoRef = (bank) => {
+      const photoRef = bank.photos[0].photo_reference;
+      const apiKey = "AIzaSyD3o3hDRwSZTVhlUIDOjGQ1ZqevG6fnWII";
+      var result = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${apiKey}&key=${photoRef}`;
+      console.log(result);
+    };
     return (
       <ScrollView style={styles.backgroundDiv}>
-        <Text style={styles.title}>Locations</Text>
+        <View style={{ alignItems: "center", justifyContent: "center" }}>
+          <ImageBackground
+            style={{
+              width: 550,
+              height: 60,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            source={{
+              uri:
+                "https://wp-plugins-directory.com/wp-content/uploads/google-maps-builder-preview.png",
+            }}
+          >
+            <Icon name="location-arrow" color="black" size={20}>
+              <Text style={styles.title}>Locations</Text>
+            </Icon>
+          </ImageBackground>
+        </View>
         {data.results.map((bank) => {
-          console.log(bank);
           var { lat, lng } = bank.geometry.location;
           var isOpen = bank.opening_hours || "Closing at 5";
           // console.log(photoRef);
@@ -155,13 +181,18 @@ export default function Locations() {
                 <Image
                   style={styles.locationImage}
                   source={{
-                    uri: `${bank.icon}`,
+                    uri:
+                      "https://www.totalloyalty.com/wp-content/uploads/2017/10/AdobeStock_99990959.jpg",
                   }}
                 />
-                <View>
-                  <Text style={styles.bankName}>
+                <View style={{ marginLeft: 8 }}>
+                  <Text
+                    style={styles.bankName}
+                    ellipsizeMode="tail"
+                    numberOfLines={1}
+                  >
                     {bank.permanently_closed
-                      ? `${bank.name} - PERMANENTLY CLOSED`
+                      ? `${bank.name} - NON-OPERATIONAL`
                       : `${bank.name}`}
                   </Text>
                   <Text style={styles.formattedAddress}>
@@ -178,6 +209,6 @@ export default function Locations() {
       </ScrollView>
     );
   } else {
-    return <BarIndicator color="red" count={3}></BarIndicator>;
+    return <BarIndicator color="red" count={5}></BarIndicator>;
   }
 }

@@ -142,6 +142,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderBottomWidth: 1,
     padding: 10,
+    marginBottom: 4,
   },
   pic: {
     borderRadius: 30,
@@ -176,6 +177,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginLeft: 15,
   },
+  depositTitle: {
+    fontSize: 30,
+    color: "black",
+    fontWeight: "500",
+    marginRight: 15,
+    padding: 8,
+    marginTop: 18,
+  },
 });
 const image = {
   uri:
@@ -186,33 +195,6 @@ const logoImage = {
     "https://yt3.ggpht.com/-ftL7wcuvwB0/AAAAAAAAAAI/AAAAAAAAAAA/IFOzfBDM8JI/s900-c-k-no-mo-rj-c0xffffff/photo.jpg",
 };
 export default Balance = ({ navigation, route }) => {
-  renderItem = ({ item }) => {
-    return (
-      <View style={styles.row}>
-        <Image
-          source={{
-            uri:
-              "https://www.iconbunny.com/icons/media/catalog/product/cache/2/thumbnail/600x/1b89f2fc96fc819c2a7e15c7e545e8a9/1/0/1089.12-credit-card-icon-iconbunny.jpg",
-          }}
-          style={styles.pic}
-        />
-        <View>
-          <View style={styles.nameContainer}>
-            <Text style={styles.nameTxt} numberOfLines={1} ellipsizeMode="tail">
-              {item.name}
-            </Text>
-            <Text style={styles.mblTxt}>${item.amount}</Text>
-          </View>
-          <View style={styles.msgContainer}>
-            <Text style={styles.msgTxt}>{item.date || "N/A"}</Text>
-            <Text style={styles.msgTxt}>
-              {item.location.address || "No address Avalible"}
-            </Text>
-          </View>
-        </View>
-      </View>
-    );
-  };
   const [data, updateData] = React.useState({});
   React.useEffect(() => {
     var bank = route.params.data();
@@ -251,7 +233,32 @@ export default Balance = ({ navigation, route }) => {
     };
     setTimeout(GrabTransaction, 4000);
   }, []);
-  console.log("EXTERNAL ROUTE", route.params);
+  renderItem = ({ item }) => {
+    return (
+      <View style={styles.row}>
+        <Image
+          source={{
+            uri: "https://image.flaticon.com/icons/png/512/1466/1466684.png",
+          }}
+          style={styles.pic}
+        />
+        <View>
+          <View style={styles.nameContainer}>
+            <Text style={styles.nameTxt} numberOfLines={1} ellipsizeMode="tail">
+              {item.name}
+            </Text>
+            <Text style={styles.mblTxt}>${item.amount}</Text>
+          </View>
+          <View style={styles.msgContainer}>
+            <Text style={styles.msgTxt}>{item.date || "N/A"}</Text>
+            <Text style={styles.msgTxt}>
+              {item.location.address || "No address Avalible"}
+            </Text>
+          </View>
+        </View>
+      </View>
+    );
+  };
   if (
     Object.keys(data).length &&
     data.transactionData != null &&
@@ -259,10 +266,16 @@ export default Balance = ({ navigation, route }) => {
   ) {
     const handleFilter = (transaction) => {
       if (
-        transaction.category[0] === "deposit" &&
-        transaction.category[1] === "deposit"
+        transaction.category[0] === "Deposit" ||
+        transaction.category[1] === "Deposit"
       ) {
-        return true;
+        return transaction;
+      }
+      if (
+        transaction.category[0] === "Payment" ||
+        transaction.category[1] === "Payment"
+      ) {
+        return transaction;
       }
     };
     const filteredData = data.transactionData.transactions.filter(handleFilter);
@@ -298,10 +311,10 @@ export default Balance = ({ navigation, route }) => {
         <View style={styles.phoneNumber}>
           <Text style={styles.phoneNumberText}>Call : 1 (800) 869-3557</Text>
         </View>
-        <FlatList
-          data={data.transactionData.transactions}
-          renderItem={renderItem}
-        />
+        <View style={{ flexDirection: "row" }}>
+          <Text style={styles.depositTitle}>Recent Deposits</Text>
+        </View>
+        <FlatList data={filteredData} renderItem={renderItem} />
       </ScrollView>
     );
   } else {
