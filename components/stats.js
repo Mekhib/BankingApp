@@ -2,8 +2,10 @@ import React, { Component } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { BarIndicator } from "react-native-indicators";
 import moment from "moment";
+import { Dimensions } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import plaid from "plaid";
+import { LineChart, BarChart } from "react-native-chart-kit";
 import ProgressCircle from "react-native-progress-circle";
 import {
   Platform,
@@ -16,7 +18,6 @@ import {
   ImageBackground,
   ScrollView,
 } from "react-native";
-import transactions from "./transactions";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -39,6 +40,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     alignContent: "center",
     margin: 3,
+    borderLeftWidth: 1,
+    borderLeftColor: "black",
   },
   mostSpent: {
     fontSize: 30,
@@ -48,13 +51,58 @@ const styles = StyleSheet.create({
     padding: 8,
     marginTop: 18,
   },
+  historyText: {
+    fontStyle: "italic",
+    fontSize: 13,
+    fontWeight: "200",
+  },
 });
 export default Stats = ({ route, navigation }) => {
   const [data, updateData] = React.useState(null);
-  const [transactionData, updateTransactionData] = React.useState(undefined);
-  const [history, updateHistory] = React.useState(undefined);
+  const [transactionData, updateTransactionData] = React.useState(null);
+  const [history, updateHistory] = React.useState(null);
+  const [lineGraphY, UpdateGy] = React.useState(null);
+  const [lineGraphx, UpdateGx] = React.useState(null);
+  const [loading, finishedLoading] = React.useState(true);
+  const LineChartArray = (transactionData) => {
+    console.log("TILC", transactionData);
+    const dateFilter = (date) => {
+      const handleFilter = (transaction) => {
+        if (transaction.date === date) {
+          return transaction;
+        }
+      };
+      const filteredData = transactionData.filter(handleFilter);
+      console.log("FDILC", filteredData);
+      if (filteredData.length === 0) {
+      } else {
+        const returnArray = [];
+        filteredData.forEach((transaction) => {
+          const amount = transaction.amount;
+          returnArray.push(amount);
+          return returnArray;
+        });
+        return eval(returnArray.join("+"));
+      }
+    };
+    const dateArray = [];
+    const amountArray = [];
+    transactionData.forEach((transaction) => {
+      const date = transaction.date;
+      dateArray.push(date);
+      return dateArray;
+    });
+    UpdateGy([...new Set(dateArray)]);
+    dateArray.forEach((date) => {
+      const filterResult = dateFilter(date);
+      amountArray.push(filterResult);
+      return amountArray;
+    });
+    console.log("amount array", amountArray);
+    UpdateGx(amountArray);
+  };
   React.useEffect(() => {
-    const grabTransaction = () => {
+    const grabTransaction = async () => {
       const bank = route.params.data();
       const { accessToken, publictoken } = bank;
       const now = moment();
@@ -76,8 +124,10 @@ export default Stats = ({ route, navigation }) => {
           if (err) {
             console.log("Error", err);
           }
-          updateTransactionData(res.transactions);
           handleFilter(res);
+          updateTransactionData(res.transactions);
+          historyFilter(res.transactions);
+          LineChartArray(res.transactions);
         }
       );
     };
@@ -117,16 +167,99 @@ export default Stats = ({ route, navigation }) => {
           updateData({ filteredData });
         }
         resolve();
+        finishedLoading(true);
       });
     };
-    const runFinal = async () => {
-      await setTimeout(grabTransaction, 4000);
+    const runFinal = () => {
+      setTimeout(grabTransaction, 4000);
     };
     runFinal();
   }, []);
-  if (data === null)
+  const historyFilter = (transactionData) => {
+    console.log("Trans in History", transactionData);
+    const now = moment();
+    let resultobj = {};
+    const dailyArray = [];
+    const monthlyArray = [];
+    const weekArray = [];
+    const today = now.format("YYYY-MM-DD");
+    const forEachLoop = (loopArray, returnArray) => {
+      console.log("arrayloop", loopArray);
+      loopArray.forEach((transaction) => {
+        const amount = transaction.amount;
+        returnArray.push(amount);
+        return returnArray;
+      });
+    };
+    const dailyFilter = (transaction) => {
+      if (transaction.date === today) {
+        return transaction;
+      }
+    };
+    const weekFilter = (transaction) => {
+      const weekAgo = now.subtract(7, "days").format("YYYY-MM-DD");
+      if (transaction.date === weekAgo) {
+        return transaction;
+      }
+    };
+    const daily = transactionData.filter(dailyFilter);
+    console.log("daily", daily);
+    const week = transactionData.filter(weekFilter);
+    if (daily.length === 0) {
+    } else {
+      forEachLoop(daily, dailyArray);
+    }
+    if (week.length === 0) {
+    } else {
+      forEachLoop(week, weekArray);
+    }
+    forEachLoop(transactionData, monthlyArray);
+    var dailyEval = eval(dailyArray.join("+"));
+    var weekEval = eval(weekArray.join("+"));
+    var monthlyEval = eval(monthlyArray.join("+"));
+    resultobj = {
+      weekEval,
+      dailyEval,
+      monthlyEval,
+    };
+    updateHistory(resultobj);
+  };
+  if (
+    history === null ||
+    transactionData === null ||
+    data === null ||
+    lineGraphx === null ||
+    lineGraphY === null
+  )
     return <BarIndicator color="black" count={5}></BarIndicator>;
   else {
+    console.log("complete", lineGraphY);
+    console.log("complete2", lineGraphx);
+    console.log("history", history);
+    console.log("transdata", transactionData);
+    console.log("data1reg", data);
+    var lineChartData = {
+      labels: lineGraphY,
+      datasets: [
+        {
+          data: lineGraphx,
+          color: (opacity = 1) => `rgba(134, 65, 244, ${opacity})`,
+          strokeWidth: 2,
+        },
+      ],
+      legend: ["Time vs Money"],
+    };
+    var screenWidth = Dimensions.get("window").width;
+    var chartConfig = {
+      backgroundGradientFrom: "#1E2923",
+      backgroundGradientFromOpacity: 0,
+      backgroundGradientTo: "#08130D",
+      backgroundGradientToOpacity: 0.5,
+      color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
+      strokeWidth: 2, // optional, default 3
+      barPercentage: 0.5,
+      useShadowColorFromDataset: false, // optional
+    };
     var renderIcon = (item) => {
       switch (item) {
         case "Deposit":
@@ -180,45 +313,6 @@ export default Stats = ({ route, navigation }) => {
       if (number > 32) {
         return "darkred";
       }
-    };
-    const historyFilter = () => {
-      const now = moment();
-      const resultobj = {};
-      const Dailyarray = [];
-      const monthlyArray = [];
-      const weekArray = [];
-      const today = now.format("YYYY-MM-DD");
-      const daily = transactionData.filter(dailyFilter);
-      const week = transactionData.filter(weekFilter);
-      const dailyFilter = (transaction) => {
-        if (transaction.date === today) {
-          return transaction;
-        }
-      };
-      const weekFilter = (transaction) => {
-        const weekAgo = today.subtract(7, "days").format("YYYY-MM-DD");
-        if (transaction.date === weekAgo) {
-          return transaction;
-        }
-      };
-      daily.forEach((transaction) => {
-        const amount = transaction.amount;
-        array.push(amount);
-        return array;
-      });
-      transactionData.forEach((transaction) => {
-        const amount = transaction.amount;
-        monthlyArray.push(amount);
-        return monthlyArray;
-      });
-      week.forEach((transaction) => {
-        const amount = transaction.amount;
-        monthlyArray.push(amount);
-        return monthlyArray;
-      });
-      var weekEval = eval(Dailyarray.join("+"));
-      var dailyEval = eval(Dailyarray.join("+"));
-      var monthlyEval = eval(monthlyArray.join("+"));
     };
   }
   return (
@@ -292,9 +386,36 @@ export default Stats = ({ route, navigation }) => {
           alignItems: "center",
         }}
       >
-        <View style={styles.catView}></View>
-        <View style={styles.catView}></View>
-        <View style={styles.catView}></View>
+        <View style={styles.catView}>
+          <Text style={{ fontSize: 20 }}>
+            {history.dailyEval != undefined ? `$${history.dailyEval}` : "$0"}
+          </Text>
+          <Text style={styles.historyText}>Spent Today</Text>
+        </View>
+        <View style={styles.catView}>
+          <Text style={{ fontSize: 20 }}>
+            {" "}
+            {history.monthlyEval != undefined
+              ? `$${history.monthlyEval}`
+              : "$0"}
+          </Text>
+          <Text style={styles.historyText}>This Month</Text>
+        </View>
+        <View style={styles.catView}>
+          <Text style={{ fontSize: 20 }}>
+            {" "}
+            {history.weekEval != undefined ? `$${history.weeklyEval}` : "$0"}
+          </Text>
+          <Text styles={styles.historyText}>Today last week</Text>
+        </View>
+      </View>
+      <View>
+        <LineChart
+          data={lineChartData}
+          width={screenWidth}
+          height={670}
+          chartConfig={chartConfig}
+        />
       </View>
     </ScrollView>
   );
