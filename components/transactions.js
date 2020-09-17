@@ -22,22 +22,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "grey",
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: "center",
-    margin: 10,
-  },
-  instructions: {
-    textAlign: "center",
-    color: "#333333",
-    marginBottom: 5,
-  },
   title: {
     alignSelf: "center",
     alignItems: "center",
     flexDirection: "row",
     fontSize: 20,
-    // padding: 10,
     marginLeft: 30,
   },
   row: {
@@ -63,12 +52,15 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#222",
     fontSize: 18,
-    width: 170,
+    width: 250,
+    alignContent: "center",
   },
   mblTxt: {
-    fontWeight: "200",
-    color: "#777",
-    fontSize: 13,
+    fontWeight: "300",
+    color: "black",
+    fontSize: 20,
+    alignContent: "flex-end",
+    flexDirection: "row-reverse",
   },
   msgContainer: {
     flexDirection: "row",
@@ -149,10 +141,12 @@ export default Transactions = ({ route, navigation }) => {
             <Text style={styles.nameTxt} numberOfLines={1} ellipsizeMode="tail">
               {item.name}
             </Text>
-            <Text style={styles.mblTxt}>${item.amount}</Text>
+            <View>
+              <Text style={styles.mblTxt}>${item.amount}</Text>
+            </View>
           </View>
           <View style={styles.msgContainer}>
-            <Text style={styles.msgTxt}>{item.date || "N/A"}</Text>
+            <Text style={styles.msgTxt}>{item.date || "date N/A"}</Text>
             <Text style={styles.msgTxt}>
               {item.location.address || "No address Avalible"}
             </Text>

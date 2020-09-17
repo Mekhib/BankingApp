@@ -1,15 +1,7 @@
 import React, { Component } from "react";
 import { Platform, StyleSheet, Text, View, Button, Image } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
-import {
-  Card,
-  CardTitle,
-  CardContent,
-  CardAction,
-  CardButton,
-  CardImage,
-} from "react-native-cards";
-import { cos } from "react-native-reanimated";
+import Icon from "react-native-vector-icons/FontAwesome5";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -51,48 +43,129 @@ export default Home = ({ navigation, route }) => {
   console.log("navigation", navigation);
   if (banks != undefined && banks.length != 0) {
     console.log("banks!", banks);
-    return banks.map((bank, index) => {
-      var imgSrc = bank.bank.replace(/\s+/g, "").concat(".com");
-      console.log("accessKey", bank.accessToken);
-      console.log("imgSRC!", imgSrc);
-      return (
-        <View>
-          <Card isDark={true}>
-            <CardImage
-              source={{ uri: `https://logo.clearbit.com/${imgSrc}?size=200` }}
-              title={`${bank.bank} Account`}
-            />
-            <CardTitle
-              subtitle={
-                bank.account != null
-                  ? `your ${bank.account} account`
-                  : `Your Bank Account`
-              }
-            />
-            <CardContent
-              text={
-                bank.accountType != null ? bank.accountType : `Checking/Savings`
-              }
-            />
-            <CardAction separator={true} inColumn={true} />
-            <CardButton
-              onPress={() => {
-                handleOnClick(index);
-              }}
-              title="View"
-              color="#FEB557"
-            />
-            <CardButton
-              onPress={() => {
-                alert("Feature Coming Soon!");
-              }}
-              title="Delete"
-              color="#FEB557"
-            />
-          </Card>
+    return (
+      <View
+        style={{
+          flex: 0.35,
+          flexDirection: "column",
+          // flexWrap: "nowrap",
+          // alignContent: "flex-start",
+          // marginTop: 0,
+          // alignContent: "flex-start",
+        }}
+      >
+        <View style={{ marginBottom: 23 }}>
+          <Text>My Banks</Text>
         </View>
-      );
-    });
+        {banks.map((bank, index) => {
+          var imgSrc = bank.bank.replace(/\s+/g, "").concat(".com");
+          console.log("accessKey", bank.accessToken);
+          console.log("imgSRC!", imgSrc);
+          return (
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "row",
+                justifyContent: "space-around",
+                height: 11,
+              }}
+            >
+              <View
+                style={{
+                  backgroundColor: "black",
+                  height: "59%",
+                  width: "1%",
+                  marginLeft: 2,
+                  borderRadius: 3,
+                }}
+              ></View>
+              <View
+                style={{
+                  alignContent: "flex-start",
+                  width: "23%",
+                  height: "10%",
+                }}
+              >
+                <Image
+                  source={{
+                    uri: `https://logo.clearbit.com/${imgSrc}?size=200`,
+                  }}
+                  style={{
+                    width: 75,
+                    height: 75,
+                    alignContent: "flex-start",
+                    marginLeft: 9,
+                    borderRadius: 6,
+                  }}
+                />
+              </View>
+              <View
+                style={{
+                  width: "52%",
+                  height: "23%",
+                  justifyContent: "flex-start",
+                }}
+              >
+                <Text
+                  style={{ fontSize: "20px" }}
+                >{`${bank.bank} Account`}</Text>
+                <Text style={{ color: "#777", paddingTop: 2 }}>
+                  {bank.accountType != null
+                    ? bank.accountType
+                    : `Checking/Savings`}
+                </Text>
+                <Text style={{ color: "#777", paddingTop: 3, fontSize: 10 }}>
+                  <Icon name="clock" color="black" size={10}></Icon>
+                  Last updated: Today
+                </Text>
+              </View>
+              <View
+                style={{ alignItems: "center", width: "25%", height: "55%" }}
+              >
+                <Icon name="trash-alt" color="red" size={50}></Icon>
+              </View>
+            </View>
+            // <View
+            //   style={{
+            //     margin: 15,
+            //     width: 50,
+            //   }}
+            // >
+            //   <View
+            //     style={{
+            //       borderRadius: 10,
+            //       overflow: "hidden",
+            //       width: 300,
+            //     }}
+            //     onStartShouldSetResponder={() => {
+            //       handleOnClick(index);
+            //     }}
+            //   >
+            //     <View>
+            //       <Image
+            //         source={{
+            //           uri: `https://logo.clearbit.com/${imgSrc}?size=200`,
+            //         }}
+            //         style={{
+            //           width: 155,
+            //           height: 135,
+            //         }}
+            //       />
+            //     </View>
+            //     <View style={{ padding: 10, width: 155 }}>
+            //       <Text>{`${bank.bank} Account`}</Text>
+            //       <Text style={{ color: "#777", paddingTop: 5 }}>
+            //         {bank.accountType != null
+            //           ? bank.accountType
+            //           : `Checking/Savings`}
+            //       </Text>
+            //     </View>
+            //   </View>
+            // </View>
+          );
+        })}
+      </View>
+    );
   } else {
     return (
       <View style={styles.container}>
@@ -103,15 +176,18 @@ export default Home = ({ navigation, route }) => {
           }}
           style={{ height: 130, width: 130 }}
         />
-        <Text>Add an Account to view all bank instituitons.</Text>
-        <Button
+        <Text style={{ marginTop: 13 }}>
+          Add an Account to view all bank institutions.
+        </Text>
+        {/* production code */}
+        {/* <Button
           onPress={() =>
             navigation.navigate("My Account", {
               screen: "location",
             })
           }
           title="android button"
-        ></Button>
+        ></Button> */}
       </View>
     );
   }

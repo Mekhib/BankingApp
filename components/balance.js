@@ -190,15 +190,14 @@ const image = {
   uri:
     "https://static.vecteezy.com/packs/media/components/home/masthead-vectors/img/lavakidneys_800x400@2x-2db5e5a0c944e2b16a11a18674570f76.jpg",
 };
-const logoImage = {
-  uri:
-    "https://yt3.ggpht.com/-ftL7wcuvwB0/AAAAAAAAAAI/AAAAAAAAAAA/IFOzfBDM8JI/s900-c-k-no-mo-rj-c0xffffff/photo.jpg",
-};
+
 export default Balance = ({ navigation, route }) => {
   const [data, updateData] = React.useState({});
+  let bank = route.params.data();
+  let bankName = bank.bank.replace(/\s+/g, "").concat(".com");
   React.useEffect(() => {
-    var bank = route.params.data();
-    var { accessToken, publictoken } = bank;
+    console.log("bankname", bank);
+    let { accessToken, publictoken } = bank;
     const now = moment();
     const today = now.format("YYYY-MM-DD");
     const thirtyDaysAgo = now.subtract(30, "days").format("YYYY-MM-DD");
@@ -284,6 +283,9 @@ export default Balance = ({ navigation, route }) => {
     const { available, current } = data.transactionData.accounts[0].balances;
     const { name, mask, subtype } = data.transactionData.accounts[0];
     const lastTransaction = data.transactionData.transactions[0].amount;
+    let logoImage = {
+      uri: `https://logo.clearbit.com/${bankName}?size=200`,
+    };
     return (
       <ScrollView style={styles.container}>
         <View style={styles.balanceContainer}>

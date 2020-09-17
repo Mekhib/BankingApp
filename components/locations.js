@@ -113,27 +113,28 @@ const query = "wells+fargo";
 const apiKey = "AIzaSyD3o3hDRwSZTVhlUIDOjGQ1ZqevG6fnWII";
 const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${query}&location=${location}&radius=10000&key=${apiKey}`;
 console.log("console log!!!", url);
-export default function Locations() {
-  openMaps = (location) => {
-    const scheme = Platform.select({
-      ios: "maps:0,0?q=",
-      android: "geo:0,0?q=",
-    });
-    const latLng = location;
-    const label = "Custom Label";
-    const url = Platform.select({
-      ios: `${scheme}${label}@${latLng}`,
-      android: `${scheme}${latLng}(${label})`,
-    });
+export default function Locations({ navigation, route }) {
+  // openMaps = (location) => {
+  //   const scheme = Platform.select({
+  //     ios: "maps:0,0?q=",
+  //     android: "geo:0,0?q=",
+  //   });
+  //   const latLng = location;
+  //   const label = "Custom Label";
+  //   const url = Platform.select({
+  //     ios: `${scheme}${label}@${latLng}`,
+  //     android: `${scheme}${latLng}(${label})`,
+  //   });
 
-    Linking.openURL(url);
-  };
+  //   Linking.openURL(url);
+  // };
   const [loaded, isLoaded] = useState(false);
   const [data, updateData] = useState([]);
   const apiKey = "AIzaSyD3o3hDRwSZTVhlUIDOjGQ1ZqevG6fnWII";
   const location = "39.966274212776256, -75.20607905101078";
-  const query = "wells+fargo";
-  const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${query}&location=${location}&radius=10000&key=${apiKey}`;
+  const bank = route.params.data();
+  const bankName = bank.bank.replace(/\s+/g, "");
+  const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${bankName}&location=${location}&radius=10000&key=${apiKey}`;
   useEffect(() => {
     console.log("console log!!!", url);
     fetch(url)
@@ -150,6 +151,7 @@ export default function Locations() {
       const apiKey = "AIzaSyD3o3hDRwSZTVhlUIDOjGQ1ZqevG6fnWII";
       var result = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${apiKey}&key=${photoRef}`;
       console.log(result);
+      return result;
     };
     return (
       <ScrollView style={styles.backgroundDiv}>
@@ -181,8 +183,7 @@ export default function Locations() {
                 <Image
                   style={styles.locationImage}
                   source={{
-                    uri:
-                      "https://www.totalloyalty.com/wp-content/uploads/2017/10/AdobeStock_99990959.jpg",
+                    uri: photoRef(bank),
                   }}
                 />
                 <View style={{ marginLeft: 8 }}>

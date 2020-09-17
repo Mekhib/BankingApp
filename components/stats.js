@@ -66,6 +66,7 @@ export default Stats = ({ route, navigation }) => {
   const [loading, finishedLoading] = React.useState(true);
   const LineChartArray = (transactionData) => {
     console.log("TILC", transactionData);
+    const add = (a, b) => a + b;
     const dateFilter = (date) => {
       const handleFilter = (transaction) => {
         if (transaction.date === date) {
@@ -79,10 +80,14 @@ export default Stats = ({ route, navigation }) => {
         const returnArray = [];
         filteredData.forEach((transaction) => {
           const amount = transaction.amount;
+          console.log("amount!", amount);
           returnArray.push(amount);
+          console.log("ReturnArray", returnArray);
           return returnArray;
         });
-        return eval(returnArray.join("+"));
+
+        console.log("JsResponse", returnArray.reduce(add));
+        return returnArray.reduce(add);
       }
     };
     const dateArray = [];
@@ -90,7 +95,11 @@ export default Stats = ({ route, navigation }) => {
     transactionData.forEach((transaction) => {
       const date = transaction.date;
       dateArray.push(date);
-      return dateArray;
+      return dateArray.filter((transaction, index, arr) => {
+        if (dateArray.length >= 7) {
+          return false;
+        }
+      });
     });
     UpdateGy([...new Set(dateArray)]);
     dateArray.forEach((date) => {
@@ -238,27 +247,36 @@ export default Stats = ({ route, navigation }) => {
     console.log("history", history);
     console.log("transdata", transactionData);
     console.log("data1reg", data);
+    const cutString = (array) => {
+      const returnArray = [];
+      array.forEach((string) => {
+        const stringCut = string.substring(6, 10);
+        returnArray.push(stringCut);
+        return returnArray;
+      });
+      return returnArray;
+    };
     var lineChartData = {
-      labels: lineGraphY,
+      labels: cutString(lineGraphY),
       datasets: [
         {
           data: lineGraphx,
-          color: (opacity = 1) => `rgba(134, 65, 244, ${opacity})`,
-          strokeWidth: 2,
+          color: (opacity = 1) => `rgba(0,0,0, ${opacity})`,
+          strokeWidth: 4,
         },
       ],
-      legend: ["Time vs Money"],
     };
     var screenWidth = Dimensions.get("window").width;
     var chartConfig = {
-      backgroundGradientFrom: "#1E2923",
-      backgroundGradientFromOpacity: 0,
-      backgroundGradientTo: "#08130D",
-      backgroundGradientToOpacity: 0.5,
-      color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
-      strokeWidth: 2, // optional, default 3
-      barPercentage: 0.5,
-      useShadowColorFromDataset: false, // optional
+      color: (opacity = 1) => `rgba(102, 51, 153, ${opacity})`,
+      style: { borderRadius: 16 },
+      propsForDots: { r: "5", strokeWidth: "4", stroke: "black" },
+    };
+    var renderDefs = {
+      width: 270,
+      height: screenWidth,
+      backgroundGradientFrom: "blue",
+      backgroundGradientTo: "black",
     };
     var renderIcon = (item) => {
       switch (item) {
@@ -404,19 +422,33 @@ export default Stats = ({ route, navigation }) => {
         <View style={styles.catView}>
           <Text style={{ fontSize: 20 }}>
             {" "}
-            {history.weekEval != undefined ? `$${history.weeklyEval}` : "$0"}
+            {history.weekEval === undefined ? "$0" : `$${history.weeklyEval}`}
           </Text>
           <Text styles={styles.historyText}>Today last week</Text>
         </View>
       </View>
-      <View>
+      <Text style={styles.mostSpent}>Spending Chart: </Text>
+      <ScrollView horizontal>
         <LineChart
+          bezier={false}
           data={lineChartData}
-          width={screenWidth}
-          height={670}
+          width={screenWidth * 2}
+          height={270}
           chartConfig={chartConfig}
+          renderDefs={renderDefs}
+          verticalLabelRotation={30}
+          hidePointsAtIndex={[1]}
+          style={{
+            padding: 15,
+            alignContent: "center",
+            justifyContent: "center",
+            marginLeft: 11,
+            borderRadius: 12,
+            backgroundColor: "white",
+            elevation: 2,
+          }}
         />
-      </View>
+      </ScrollView>
     </ScrollView>
   );
 };

@@ -25,6 +25,12 @@ class App extends React.Component {
         bank: "Wells Fargo",
         publictoken: "public-sandbox-ac40216d-1cd1-451b-a7d3-c7c1b97b0ab6",
       },
+      {
+        accessToken: "access-sandbox-d83744df-48fe-4559-958f-ddf4a4727000",
+        account: null,
+        bank: "Wells Fargo",
+        publictoken: "public-sandbox-ac40216d-1cd1-451b-a7d3-c7c1b97b0ab6",
+      },
     ],
     complete: false,
     bankSelection: [],
@@ -40,7 +46,7 @@ class App extends React.Component {
         <Tab.Screen
           name="Balance"
           component={Balance}
-          initialParams={{ data: this.fetchBankinfo }}
+          initialParams={{ data: this.fetchBankinfo, bank: this.fetchBank }}
           options={{
             tabBarIcon: ({ color, size }) => (
               <Icon name="wallet" color="black" size={30} />
@@ -69,6 +75,7 @@ class App extends React.Component {
         />
         <Tab.Screen
           name="Locations"
+          initialParams={{ data: this.fetchBankinfo, bank: this.fetchBank }}
           component={Locations}
           options={{
             tabBarIcon: ({ color, size }) => (
@@ -78,6 +85,9 @@ class App extends React.Component {
         />
       </Tab.Navigator>
     );
+  };
+  fetchBank = () => {
+    return this.state.data.bank;
   };
   fetchBankinfo = () => {
     if (this.state.bankSelection.length != 0) {

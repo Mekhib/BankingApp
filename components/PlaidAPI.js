@@ -89,12 +89,12 @@ function Plaid({ navigation, route }) {
         }}
         style={style.bankImage}
       />
-      <Text style={style.connectedText}>Successfully Connected!</Text>
+      <Text style={style.connectedText}>Done, Your bank has been added!</Text>
       <Button
         onPress={() => {
           navigation.navigate("Home");
         }}
-        title="Go Home"
+        title="View Banks"
       />
     </View>
   );
